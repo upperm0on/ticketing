@@ -1,0 +1,16 @@
+{
+    "name": "event-ticketing-system",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "frontend": "cd frontend && npm run dev -- --port 3000 --host 0.0.0.0",
+        "backend": "cd backend && ./venv/bin/python manage.py runserver 0.0.0.0:8000",
+        "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "dependencies": {
+        "lucide-react": "^0.563.0"
+    }
+}
