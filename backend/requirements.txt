@@ -10,13 +10,17 @@ charset-normalizer==3.4.4
 cryptography==46.0.4
 Django==6.0.1
 django-cors-headers==4.9.0
+django-simple-deploy==1.4.0
 djangorestframework==3.16.1
 djangorestframework-simplejwt==5.3.1
 frozenlist==1.8.0
 google-auth==2.48.0
+gunicorn==24.1.1
 idna==3.11
 multidict==6.7.1
+packaging==26.0
 pillow==12.1.0
+pluggy==1.6.0
 propcache==0.4.1
 pyasn1==0.6.2
 pyasn1_modules==0.4.2
@@ -25,6 +29,8 @@ PyJWT==2.10.1
 requests==2.32.5
 rsa==4.9.1
 sqlparse==0.5.5
+toml==0.10.2
 twilio==9.4.0
 urllib3==2.6.3
+whitenoise==6.11.0
 yarl==1.22.0
