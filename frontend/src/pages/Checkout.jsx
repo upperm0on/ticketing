@@ -138,20 +138,20 @@ export default function Checkout() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>Checkout</h2>
         <p>Confirm your event and provide attendee details.</p>
       </header>
 
-      <div className="checkout-grid">
-        <section className="checkout-card">
+      <div className="checkout-grid" data-stagger>
+        <section className="checkout-card" data-stagger-item>
           <h3>Event Summary</h3>
           <p className="event-meta">{event.title}</p>
           <p className="event-meta">{formatEventDate(event.dateTime)}</p>
           <p className="event-meta">{event.venue}</p>
         </section>
 
-        <section className="checkout-card">
+        <section className="checkout-card" data-stagger-item>
           <h3>Ticket Type</h3>
           <div className="ticket-list">
             {ticketTypes.map((ticket) => (
@@ -182,7 +182,7 @@ export default function Checkout() {
           </div>
         </section>
 
-        <section className="checkout-card">
+        <section className="checkout-card" data-stagger-item>
           <h3>Attendee Details</h3>
           <form className="attendee-form">
             <label className="form-field">
@@ -247,7 +247,7 @@ export default function Checkout() {
           </form>
         </section>
 
-        <section className="checkout-card">
+        <section className="checkout-card" data-stagger-item>
           <h3>Order Details</h3>
           <div className="attendee-form">
             <label className="form-field">
@@ -276,7 +276,7 @@ export default function Checkout() {
           </div>
         </section>
 
-        <section className="checkout-actions">
+        <section className="checkout-actions" data-stagger-item>
           <button className="event-button is-full" type="button" onClick={handleProceed} disabled={!canProceed}>
             {isPaying ? "Processing..." : "Proceed to Payment"}
           </button>

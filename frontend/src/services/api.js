@@ -100,6 +100,19 @@ export const verifyPayment = async (reference) => {
     return response.json();
 };
 
+export const loginWithGoogle = async (credential) => {
+    const response = await fetch(`${API_URL}/auth/google/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential }),
+    });
+    if (!response.ok) {
+        const message = await parseErrorMessage(response, "Google login failed");
+        throw new Error(message);
+    }
+    return response.json();
+};
+
 export const verifyTicket = async (code, eventId) => {
     const response = await fetchWithAuth(`${API_URL}/tickets/verify/?code=${code}&eventId=${eventId}`);
     if (!response.ok) throw new Error('Invalid ticket');

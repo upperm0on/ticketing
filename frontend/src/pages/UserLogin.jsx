@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Chrome } from "lucide-react";
 import { loginUser } from "../store/userStore.js";
+import { GoogleLogin } from "@react-oauth/google";
+import { loginWithGoogle } from "../services/api.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -11,12 +13,15 @@ export default function UserLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [info, setInfo] = useState("");
+    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
     const from = location.state?.from?.pathname || "/";
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError("");
+        setInfo("");
         const username = email.trim();
 
         // For prototype simulation, we can "register" any user.
@@ -45,7 +50,7 @@ export default function UserLogin() {
     };
 
     return (
-        <section className="page login-split-view">
+        <section className="page login-split-view" data-reveal>
 
             {/* Visual Side */}
             <div className="login-visual" style={{ order: 0 }}>
@@ -76,21 +81,46 @@ export default function UserLogin() {
 
                 <form className="admin-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-                    <button
-                        type="button"
-                        className="event-button is-ghost is-full"
-                        onClick={() => alert("Google Login is disabled (Network Restrictions). Please use email.")}
-                    >
-                        <Chrome size={16} />
-                        Continue with Google
-                    </button>
+                    {!googleClientId && (
+                      <button
+                          type="button"
+                          className="event-button is-ghost is-full"
+                          onClick={() => setInfo("Google Login is disabled. Please use email.")}
+                      >
+                          <Chrome size={16} />
+                          Continue with Google
+                      </button>
+                    )}
+                    {googleClientId && (
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                          onSuccess={async (credentialResponse) => {
+                            try {
+                              setError("");
+                              setInfo("");
+                              const data = await loginWithGoogle(credentialResponse.credential);
+                              loginUser({ access: data.access, refresh: data.refresh, email: data.email });
+                              navigate(from, { replace: true });
+                            } catch (err) {
+                              setError(err?.message || "Google login failed");
+                            }
+                          }}
+                          onError={() => setError("Google login failed")}
+                          useOneTap={false}
+                        />
+                      </div>
+                    )}
 
                     <div style={{ position: 'relative', textAlign: 'center' }}>
                         <span style={{ background: '#fff', padding: '0 10px', fontSize: '12px', color: '#999', position: 'relative', zIndex: 1 }}>OR</span>
                         <div style={{ position: 'absolute', top: '50%', left: '0', right: '0', height: '1px', background: '#eee', zIndex: 0 }}></div>
                     </div>
 
-                    {error && <div style={{ color: '#d32f2f', fontSize: '14px', textAlign: 'center', background: '#ffebee', padding: '8px' }}>{error}</div>}
+                    {(error || info) && (
+                      <p className={`form-error-banner ${info ? "is-info" : ""}`}>
+                        {error || info}
+                      </p>
+                    )}
 
                     <div style={{ display: 'grid', gap: '8px' }}>
                         <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Email</label>
@@ -146,8 +176,8 @@ export default function UserLogin() {
                         </button>
                     </div>
 
-                    <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '12px', color: '#666' }}>
-                        Don't have an account? <Link to="/register" style={{ color: 'var(--accent)', fontWeight: '600' }}>Join ENTRÉE</Link>
+                    <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '12px' }}>
+                        New here? <span style={{ color: 'var(--accent)', fontWeight: '600' }}>Registration opens soon.</span>
                     </p>
                 </form>
             </div>

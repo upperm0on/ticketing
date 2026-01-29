@@ -22,11 +22,24 @@ export default function AdminVerify() {
   const [code, setCode] = useState("");
   const [result, setResult] = useState({ status: "idle", message: "", ticket: null });
   const [checkedInMessage, setCheckedInMessage] = useState("");
+  const [checkInError, setCheckInError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [cameraError, setCameraError] = useState("");
+  const [cameraInfo, setCameraInfo] = useState("");
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
 
   useEffect(() => {
-    fetchEvents().then(setEvents);
+    fetchEvents().then(setEvents).catch((err) => {
+      console.error(err);
+      setLoadError(err?.message || "Failed to load events");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!window.isSecureContext) {
+      setCameraInfo("Camera access requires HTTPS or localhost.");
+    }
   }, []);
 
   useEffect(() => {
@@ -101,6 +114,7 @@ export default function AdminVerify() {
   const handleCheckIn = async () => {
     if (!result.ticket) return;
     try {
+      setCheckInError("");
       const checkIn = await checkInTicket(result.ticket.id, email || "admin");
       addCheckIn({
         id: checkIn.id,
@@ -113,7 +127,7 @@ export default function AdminVerify() {
       setResult({ status: "idle", message: "", ticket: null });
       setCode("");
     } catch (err) {
-      alert("Check-in failed");
+      setCheckInError(err?.message || "Check-in failed");
     }
   };
 
@@ -124,15 +138,20 @@ export default function AdminVerify() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>Ticket Verification</h2>
         <p>Confirm attendance and verify identities.</p>
       </header>
 
-      <div className="checkout-grid" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.2fr)', gap: '24px' }}>
+      <div className="checkout-grid" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.2fr)', gap: '24px' }} data-stagger>
         <div className="verify-controls-section">
-          <div className="checkout-card">
+          <div className="checkout-card" data-stagger-item>
             <h3>Verification Mode</h3>
+            {loadError && (
+              <p className="form-error-banner" style={{ marginBottom: '12px' }}>
+                {loadError}
+              </p>
+            )}
             <label className="form-field">
               Target Event
               <select value={eventId} onChange={(e) => setEventId(e.target.value)}>
@@ -148,7 +167,20 @@ export default function AdminVerify() {
                 <button
                   className="event-button is-full"
                   style={{ marginBottom: '12px' }}
-                  onClick={() => setIsScanning(true)}
+                  onClick={async () => {
+                    setCameraError("");
+                    try {
+                      if (!navigator.mediaDevices?.getUserMedia) {
+                        setCameraError("Camera API not supported in this browser.");
+                        return;
+                      }
+                      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                      stream.getTracks().forEach((track) => track.stop());
+                      setIsScanning(true);
+                    } catch (err) {
+                      setCameraError("Camera permission denied. Please allow access to continue.");
+                    }
+                  }}
                   disabled={!eventId}
                 >
                   <QrCode size={16} />
@@ -165,6 +197,12 @@ export default function AdminVerify() {
                 </button>
               )}
             </div>
+
+            {(cameraInfo || cameraError) && (
+              <p className={`form-error-banner ${cameraInfo ? "is-info" : ""}`} style={{ marginTop: '12px' }}>
+                {cameraError || cameraInfo}
+              </p>
+            )}
 
             {isScanning && <div id="reader" style={{ width: '100%' }}></div>}
 
@@ -187,7 +225,7 @@ export default function AdminVerify() {
             </div>
           </div>
 
-          <div className="checkout-card" style={{ marginTop: '20px' }}>
+          <div className="checkout-card" style={{ marginTop: '20px' }} data-stagger-item>
             <h3>Recent Activity</h3>
             {recentCheckIns.length === 0 && <p className="event-meta">No check-ins logged yet.</p>}
             <div className="checkin-log" style={{ maxHeight: '300px', overflowY: 'auto' }}>
@@ -201,7 +239,7 @@ export default function AdminVerify() {
           </div>
         </div>
 
-        <div className="verify-results-section">
+        <div className="verify-results-section" data-stagger-item>
           {result.status === "idle" && !checkedInMessage && (
             <div className="checkout-card" style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9f9f9', borderStyle: 'dashed' }}>
               <p className="event-meta">Scan a QR code or enter a ticket ID to begin verification.</p>
@@ -212,6 +250,12 @@ export default function AdminVerify() {
             <div className="verify-message verify-success" style={{ marginBottom: '20px', background: '#e7f5e7', border: '2px solid #2a6f2a' }}>
               <BadgeCheck size={16} style={{ marginRight: '8px', verticalAlign: 'text-bottom' }} />
               {checkedInMessage}
+            </div>
+          )}
+
+          {checkInError && (
+            <div className="form-error-banner" style={{ marginBottom: '20px' }}>
+              {checkInError}
             </div>
           )}
 

@@ -7,6 +7,8 @@ import { fetchTicketsByEvent, resendTicketCode } from "../../services/api.js";
 export default function AdminTickets() {
   const { id } = useParams();
   const [queued, setQueued] = useState({});
+  const [actionError, setActionError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const { events, ticketTypesByEventId } = useSyncExternalStore(
     eventsStore.subscribe,
     () => eventsStore.getState()
@@ -16,7 +18,13 @@ export default function AdminTickets() {
   const event = events.find((item) => item.id === id);
   useEffect(() => {
     if (id) {
-      fetchTicketsByEvent(id).then(setTickets).catch(console.error);
+      fetchTicketsByEvent(id)
+        .then(setTickets)
+        .catch((err) => {
+          console.error(err);
+          setActionError(err?.message || "Failed to fetch tickets");
+        })
+        .finally(() => setIsLoading(false));
     }
   }, [id]);
   const ticketTypes = ticketTypesByEventId[id] || [];
@@ -32,13 +40,14 @@ export default function AdminTickets() {
   const handleResend = async (ticket) => {
     if (ticket.status !== "paid" || !ticket.code) return;
     try {
+      setActionError("");
       await resendTicketCode(ticket.id);
       setQueued((prev) => ({ ...prev, [ticket.id]: true }));
       setTimeout(() => {
         setQueued((prev) => ({ ...prev, [ticket.id]: false }));
       }, 2000);
     } catch (error) {
-      alert("Resend failed");
+      setActionError(error?.message || "Resend failed");
     }
   };
 
@@ -58,18 +67,23 @@ export default function AdminTickets() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>Tickets</h2>
         <p>{event.title}</p>
       </header>
 
-      <div className="admin-actions">
+      <div className="admin-actions" data-reveal>
         <Link className="event-link" to="/admin/events">
           Back to Events
         </Link>
       </div>
+      {actionError && (
+        <div className="form-error-banner" style={{ marginTop: '16px' }}>
+          {actionError}
+        </div>
+      )}
 
-      <div className="admin-table admin-tickets-table">
+      <div className="admin-table admin-tickets-table" data-reveal>
         <div className="admin-row admin-header-row admin-ticket-row">
           <span>Ticket ID</span>
           <span>Ticket Type</span>
@@ -79,7 +93,12 @@ export default function AdminTickets() {
           <span>Created</span>
           <span>Actions</span>
         </div>
-        {eventTickets.map((ticket) => {
+        {isLoading && (
+          <div className="admin-row">
+            <span>Loading tickets...</span>
+          </div>
+        )}
+        {!isLoading && eventTickets.map((ticket) => {
           const canResend = ticket.status === "paid" && Boolean(ticket.code);
           return (
             <div key={ticket.id} className="admin-row admin-ticket-row">
@@ -103,7 +122,7 @@ export default function AdminTickets() {
             </div>
           );
         })}
-        {eventTickets.length === 0 && (
+        {!isLoading && eventTickets.length === 0 && (
           <div className="admin-row">
             <span>No tickets found for this event.</span>
           </div>

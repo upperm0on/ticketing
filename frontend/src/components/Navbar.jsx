@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSyncExternalStore } from "react";
 import { CalendarDays, LayoutDashboard, LogIn, LogOut, QrCode, Plus, Ticket } from "lucide-react";
 import { adminStore, logoutAdmin } from "../store/adminStore.js";
@@ -73,10 +73,17 @@ export default function Navbar() {
           .map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.to} className="event-button is-ghost is-compact" to={item.to} title={item.label}>
+              <NavLink
+                key={item.to}
+                className={({ isActive }) =>
+                  `event-button is-ghost is-compact${isActive ? " is-active" : ""}`
+                }
+                to={item.to}
+                title={item.label}
+              >
                 <Icon size={14} />
                 <span className="nav-label">{item.label}</span>
-              </Link>
+              </NavLink>
             );
           })}
       </div>
@@ -84,10 +91,16 @@ export default function Navbar() {
       <div className="nav-group nav-actions">
         <span className="nav-meta">{nav.label}</span>
         {nav.cta && (
-          <Link className="event-button is-compact" to={nav.cta.to} title={nav.cta.label}>
+          <NavLink
+            className={({ isActive }) =>
+              `event-button is-compact${isActive ? " is-active" : ""}`
+            }
+            to={nav.cta.to}
+            title={nav.cta.label}
+          >
             {CtaIcon && <CtaIcon size={14} />}
             <span className="nav-label">{nav.cta.label}</span>
-          </Link>
+          </NavLink>
         )}
         {nav.onLogout ? (
           <button className="event-button is-outline is-compact" type="button" onClick={handleLogout} title="Logout">

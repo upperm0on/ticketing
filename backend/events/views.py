@@ -3,6 +3,7 @@ import hmac
 import json
 import uuid
 import requests
+import logging
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -23,6 +24,8 @@ from .serializers import (
     TicketPurchaseSerializer,
 )
 
+logger = logging.getLogger(__name__)
+
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
@@ -41,6 +44,12 @@ class EventViewSet(viewsets.ModelViewSet):
         return data
 
     def create(self, request, *args, **kwargs):
+        logger.info("Event create content-type=%s", request.content_type)
+        logger.info(
+            "Event create payload data keys=%s files=%s",
+            list(request.data.keys()),
+            list(request.FILES.keys()),
+        )
         data = self._coerce_ticket_types(request.data)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -51,6 +60,12 @@ class EventViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
+        logger.info("Event update content-type=%s", request.content_type)
+        logger.info(
+            "Event update payload data keys=%s files=%s",
+            list(request.data.keys()),
+            list(request.FILES.keys()),
+        )
         data = self._coerce_ticket_types(request.data)
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)

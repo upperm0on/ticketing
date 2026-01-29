@@ -15,9 +15,13 @@ import UserLogin from "./pages/UserLogin.jsx";
 import RequireAuth from "./components/RequireAuth.jsx";
 import RequireAdmin from "./components/RequireAdmin.jsx";
 import Navbar from "./components/Navbar.jsx";
+import useScrollAnimations from "./hooks/useScrollAnimations.js";
+import useSmoothScroll from "./hooks/useSmoothScroll.js";
 
 
 export default function App() {
+  useScrollAnimations();
+  useSmoothScroll();
   return (
     <div className="app-shell">
       <header className="app-header">

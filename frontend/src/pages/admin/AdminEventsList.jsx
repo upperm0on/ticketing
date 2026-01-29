@@ -49,12 +49,12 @@ export default function AdminEventsList() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>Event Management</h2>
         <p>Maintain your event listings and monitor registrations.</p>
       </header>
 
-      <div className="admin-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="admin-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} data-reveal>
         <Link className="event-button" to="/admin/events/new">
           Create New Event
         </Link>
@@ -68,7 +68,7 @@ export default function AdminEventsList() {
         </div>
       )}
 
-      <div className="admin-table admin-events-table" style={{ marginTop: '24px' }}>
+      <div className="admin-table admin-events-table" style={{ marginTop: '24px' }} data-reveal>
         <div className="admin-row admin-header-row admin-events-row">
           <span>Event Title</span>
           <span>Venue</span>

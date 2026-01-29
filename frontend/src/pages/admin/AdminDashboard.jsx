@@ -9,6 +9,7 @@ import { formatEventDate } from "../../utils/date.js";
 export default function AdminDashboard() {
   const [tickets, setTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const { events, ticketTypesByEventId } = useSyncExternalStore(
@@ -20,7 +21,12 @@ export default function AdminDashboard() {
     Promise.all([
       fetchEvents().then(setEvents),
       fetchAllTickets().then(setTickets)
-    ]).finally(() => setIsLoading(false));
+    ])
+      .catch((err) => {
+        console.error(err);
+        setError(err?.message || "Failed to load metrics.");
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const stats = useMemo(() => {
@@ -64,7 +70,7 @@ export default function AdminDashboard() {
 
   return (
     <section className="page">
-      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} data-reveal>
         <div>
           <h2>Organizer Overview</h2>
           <p>Real-time analytics across all your events.</p>
@@ -76,21 +82,27 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <div className="checkout-card" style={{ textAlign: 'center' }}>
+      {error && (
+        <div className="form-error-banner" style={{ marginBottom: '20px' }}>
+          {error}
+        </div>
+      )}
+
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '32px' }} data-stagger>
+        <div className="checkout-card" style={{ textAlign: 'center' }} data-stagger-item>
           <h4 style={{ margin: '0 0 8px', color: '#666' }}>Tickets Sold</h4>
           <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.totalSold}</div>
         </div>
-        <div className="checkout-card" style={{ textAlign: 'center' }}>
+        <div className="checkout-card" style={{ textAlign: 'center' }} data-stagger-item>
           <h4 style={{ margin: '0 0 8px', color: '#666' }}>Gross Revenue</h4>
           <div style={{ fontSize: '32px', fontWeight: 'bold' }}>${stats.totalRevenue.toLocaleString()}</div>
         </div>
-        <div className="checkout-card" style={{ textAlign: 'center' }}>
+        <div className="checkout-card" style={{ textAlign: 'center' }} data-stagger-item>
           <h4 style={{ margin: '0 0 8px', color: '#666' }}>Checked In</h4>
           <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.totalCheckedIn}</div>
           <div style={{ fontSize: '14px', color: '#2a6f2a' }}>{stats.checkInRate}% Arrival Rate</div>
         </div>
-        <div className="checkout-card" style={{ textAlign: 'center' }}>
+        <div className="checkout-card" style={{ textAlign: 'center' }} data-stagger-item>
           <h4 style={{ margin: '0 0 8px', color: '#666' }}>Active Events</h4>
           <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{stats.totalEvents}</div>
         </div>

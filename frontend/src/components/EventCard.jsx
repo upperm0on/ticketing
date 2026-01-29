@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { formatEventDate, normalizeFlyerUrl } from "../utils/date.js";
 
 export default function EventCard({ event, priceLabel, availabilityLabel }) {
@@ -6,7 +5,11 @@ export default function EventCard({ event, priceLabel, availabilityLabel }) {
     || "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&q=80&w=800";
 
   return (
-    <article className="event-card" onClick={() => window.location.href = `/events/${event.id}`}>
+    <article
+      className="event-card"
+      data-stagger-item
+      onClick={() => window.location.href = `/events/${event.id}`}
+    >
       <div className="event-flyer">
         <img src={flyerSrc} alt={event.title} />
       </div>

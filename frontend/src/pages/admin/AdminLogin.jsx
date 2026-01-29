@@ -10,10 +10,14 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const cleanUsername = username.trim();
+    setError("");
+    setInfo("");
     try {
       const response = await fetch(`${API_URL}/auth/token/`, {
         method: "POST",
@@ -28,12 +32,12 @@ export default function AdminLogin() {
       loginAdmin(cleanUsername);
       navigate("/admin/dashboard");
     } catch (error) {
-      alert("Invalid credentials");
+      setError("Invalid credentials");
     }
   };
 
   return (
-    <section className="page login-split-view">
+    <section className="page login-split-view" data-reveal>
 
       {/* Visual Side */}
       <div className="login-visual">
@@ -61,6 +65,12 @@ export default function AdminLogin() {
           </p>
           <h2 style={{ fontSize: '32px' }}>Welcome Back</h2>
         </header>
+
+        {(error || info) && (
+          <p className={`form-error-banner ${info ? "is-info" : ""}`}>
+            {error || info}
+          </p>
+        )}
 
         <form className="admin-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
@@ -126,7 +136,7 @@ export default function AdminLogin() {
           <button
             type="button"
             className="event-button is-ghost is-full"
-            onClick={() => alert("Google Login is disabled (Network Restrictions). Use: admin / password")}
+            onClick={() => setInfo("Google Login is disabled. Use admin credentials.")}
           >
             <Chrome size={16} />
             Continue with Google

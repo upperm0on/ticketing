@@ -21,11 +21,17 @@ export default function EventList() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <p>Volume 01 / Issue 02 — FEB 2026</p>
         <h2>The Nightlife Anthology</h2>
       </header>
-      <div className="event-grid">
+      <div className="event-grid" data-stagger>
+        {publishedEvents.length === 0 && (
+          <div className="checkout-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+            <h3>No events published yet</h3>
+            <p className="event-meta">Check back soon for new experiences.</p>
+          </div>
+        )}
         {publishedEvents.map((event) => {
           const ticketTypes = ticketTypesByEventId[event.id] || [];
           const availableCount = ticketTypes.reduce((count, ticket) => {

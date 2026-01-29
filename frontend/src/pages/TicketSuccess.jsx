@@ -49,20 +49,20 @@ export default function TicketSuccess() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>🎉 Ticket Confirmed!</h2>
         <p>Your registration is complete. Show the QR code at the venue for verification.</p>
       </header>
 
-      <div className="checkout-grid">
-        <section className="checkout-card">
+      <div className="checkout-grid" data-stagger>
+        <section className="checkout-card" data-stagger-item>
           <h3>Event Summary</h3>
           <p className="event-meta"><strong>{event?.title || "Event"}</strong></p>
           <p className="event-meta">{formatEventDate(event?.dateTime)}</p>
           <p className="event-meta">{event?.venue}</p>
         </section>
 
-        <section className="checkout-card">
+        <section className="checkout-card" data-stagger-item>
           <h3>Attendee Summary</h3>
           <p className="event-meta">Name: {ticket.attendee.full_name}</p>
           <p className="event-meta">Age: {ticket.attendee.age}</p>
@@ -74,7 +74,7 @@ export default function TicketSuccess() {
           )}
         </section>
 
-        <section className="checkout-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <section className="checkout-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} data-stagger-item>
           <h3>Entry QR Code</h3>
           <div className="qr-container" style={{ padding: '20px', background: 'white', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <QRCodeCanvas value={ticket.qr_value} size={200} level="H" includeMargin={true} />

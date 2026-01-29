@@ -9,6 +9,8 @@ const PLACEHOLDER_IMAGE = "https://via.placeholder.com/80x80?text=Photo";
 export default function AdminAttendees() {
   const { id } = useParams();
   const [query, setQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [actionError, setActionError] = useState("");
   const { events, ticketTypesByEventId } = useSyncExternalStore(
     eventsStore.subscribe,
     () => eventsStore.getState()
@@ -16,7 +18,13 @@ export default function AdminAttendees() {
   const { tickets } = useSyncExternalStore(ticketStore.subscribe, () => ticketStore.getState());
 
   useEffect(() => {
-    fetchTicketsByEvent(id).then(setTickets).catch(console.error);
+    fetchTicketsByEvent(id)
+      .then(setTickets)
+      .catch((err) => {
+        console.error(err);
+        setActionError(err?.message || "Failed to fetch attendees");
+      })
+      .finally(() => setIsLoading(false));
   }, [id]);
 
   const event = events.find((item) => item.id === id);
@@ -55,12 +63,12 @@ export default function AdminAttendees() {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>Attendees</h2>
         <p>{event.title}</p>
       </header>
 
-      <div className="admin-actions">
+      <div className="admin-actions" data-reveal>
         <input
           className="admin-search"
           type="text"
@@ -72,8 +80,13 @@ export default function AdminAttendees() {
           Back to Events
         </Link>
       </div>
+      {actionError && (
+        <div className="form-error-banner" style={{ marginTop: '16px' }}>
+          {actionError}
+        </div>
+      )}
 
-      <div className="admin-table admin-attendees-table">
+      <div className="admin-table admin-attendees-table" data-reveal>
         <div className="admin-row admin-header-row admin-attendee-row">
           <span>Photo</span>
           <span>Name</span>
@@ -83,7 +96,12 @@ export default function AdminAttendees() {
           <span>Code</span>
           <span>Status</span>
         </div>
-        {filteredTickets.map((ticket) => (
+        {isLoading && (
+          <div className="admin-row">
+            <span>Loading attendees...</span>
+          </div>
+        )}
+        {!isLoading && filteredTickets.map((ticket) => (
           <div key={ticket.id} className="admin-row admin-attendee-row">
             <div className="admin-cell" data-label="Photo">
               <img
@@ -100,7 +118,7 @@ export default function AdminAttendees() {
             <div className="admin-cell" data-label="Status">{ticket.status}</div>
           </div>
         ))}
-        {filteredTickets.length === 0 && (
+        {!isLoading && filteredTickets.length === 0 && (
           <div className="admin-row">
             <span>No paid attendees found.</span>
           </div>

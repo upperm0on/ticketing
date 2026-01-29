@@ -19,9 +19,10 @@ export default function PaymentStart() {
     setStatus("verifying");
     verifyPayment(reference)
       .then((response) => {
-        if (response.ticket) {
-          addTicket(response.ticket);
-          navigate(`/ticket/success/${response.ticket.id}`);
+        const tickets = response.tickets || [];
+        if (tickets.length > 0) {
+          addTicket(tickets[0]);
+          navigate(`/ticket/success/${tickets[0].id}`);
         } else {
           setStatus("error");
           setMessage("Payment verified but ticket missing.");

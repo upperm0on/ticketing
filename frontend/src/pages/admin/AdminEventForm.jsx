@@ -116,8 +116,8 @@ export default function AdminEventForm({ mode }) {
     setEventData((prev) => ({ ...prev, [field]: eventTarget.target.value }));
   };
 
-  const handleFlyerChange = (eventTarget) => {
-    const file = eventTarget.files?.[0];
+  const handleFlyerChange = (event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     setFlyerFile(file);
@@ -170,12 +170,12 @@ export default function AdminEventForm({ mode }) {
 
   return (
     <section className="page">
-      <header className="page-header">
+      <header className="page-header" data-reveal>
         <h2>{mode === "new" ? "Create Event" : "Edit Event"}</h2>
         <p>Define event details and ticket types.</p>
       </header>
 
-      <form className="admin-form" onSubmit={handleSave}>
+      <form className="admin-form" onSubmit={handleSave} data-reveal data-reveal-distance="28">
         <div className="form-grid">
           <label className="form-field is-full">
             Title

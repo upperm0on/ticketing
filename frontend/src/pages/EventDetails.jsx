@@ -41,17 +41,17 @@ export default function EventDetails() {
 
   return (
     <section className="page">
-      <header className="page-header" style={{ marginBottom: '40px' }}>
+      <header className="page-header" style={{ marginBottom: '40px' }} data-reveal>
         <p>Featured Story // No. {event.id.slice(-3)}</p>
         <h2>{event.title}</h2>
       </header>
 
-      <div className="event-details">
-        <div className="event-flyer-hero">
+      <div className="event-details" data-stagger>
+        <div className="event-flyer-hero" data-stagger-item>
           <img src={flyerSrc} alt={event.title} style={{ width: '100%', display: 'block' }} />
         </div>
 
-        <div className="event-info-sidebar">
+        <div className="event-info-sidebar" data-stagger-item>
           <div className="event-meta" style={{ marginBottom: '32px', borderTop: '4px solid #000', paddingTop: '16px' }}>
             <span className="serif" style={{ fontSize: '24px' }}>{formatEventDate(event.dateTime)}</span>
             <span className="text-gold" style={{ letterSpacing: '0.1em', fontWeight: 'bold' }}>{event.venue}</span>
