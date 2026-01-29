@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: "0.0.0.0",
-    allowedHosts: true,
+    allowedHosts: ["ticketing-ey3b.onrender.com"],
     proxy: {
       '/api': 'http://localhost:8000',
       '/media': 'http://localhost:8000',
