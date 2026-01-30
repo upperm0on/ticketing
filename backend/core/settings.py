@@ -173,8 +173,8 @@ if frontend_origin:
 CORS_ALLOWED_ORIGINS = split_env_list("CORS_ALLOWED_ORIGINS", ",".join(default_cors))
 CORS_ALLOW_CREDENTIALS = os.environ.get("CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
 
-if os.environ.get("CORS_ALLOW_ALL", "false").lower() == "true":
-    CORS_ALLOW_ALL_ORIGINS = True
+# Allow all origins (temporary broad access per request).
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
