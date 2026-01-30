@@ -2,12 +2,11 @@ services:
   - type: web
     name: entree-backend
     env: python
-    rootDir: backend
     buildCommand: |
-      pip install -r requirements.txt
-      python manage.py collectstatic --noinput
-      python manage.py migrate
-    startCommand: gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
+      pip install -r backend/requirements.txt
+      python backend/manage.py collectstatic --noinput
+      python backend/manage.py migrate
+    startCommand: gunicorn core.wsgi:application --bind 0.0.0.0:$PORT --chdir backend
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
