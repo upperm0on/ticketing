@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 from .models import Event, TicketType, Attendee, Ticket, CheckIn
 
@@ -17,8 +18,15 @@ class EventSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         flyer = data.get('flyer')
-        if flyer and not flyer.startswith('http') and not flyer.startswith('/media/'):
-            data['flyer'] = f"/media/{flyer.lstrip('/')}"
+        if flyer:
+            request = self.context.get('request')
+            if flyer.startswith('http://') or flyer.startswith('https://'):
+                return data
+            if flyer.startswith('/'):
+                data['flyer'] = request.build_absolute_uri(flyer) if request else flyer
+                return data
+            media_path = f"{settings.MEDIA_URL}{flyer.lstrip('/')}"
+            data['flyer'] = request.build_absolute_uri(media_path) if request else media_path
         return data
 
     def create(self, validated_data):

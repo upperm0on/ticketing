@@ -1,5 +1,6 @@
 const RAW_API_URL = import.meta.env.VITE_API_URL || 'https://ticketing-1-backend.onrender.com/api';
 export const API_URL = RAW_API_URL.replace(/\/$/, '');
+export const API_BASE_URL = API_URL.replace(/\/api\/?$/, '');
 
 function authHeaders() {
     const token = localStorage.getItem("accessToken");

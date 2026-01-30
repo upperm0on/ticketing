@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../services/api.js";
+
 export function formatEventDate(value) {
   if (!value) return "";
   const raw = String(value);
@@ -22,6 +24,9 @@ export function formatEventDate(value) {
 export function normalizeFlyerUrl(value) {
   if (!value) return "";
   if (value.startsWith("http://") || value.startsWith("https://")) return value;
-  if (value.startsWith("/media/")) return value;
-  return `/media/${value.replace(/^\/+/, "")}`;
+  const normalized = value.startsWith("/media/")
+    ? value
+    : `/media/${value.replace(/^\/+/, "")}`;
+  if (!API_BASE_URL) return normalized;
+  return `${API_BASE_URL.replace(/\/$/, "")}${normalized}`;
 }
