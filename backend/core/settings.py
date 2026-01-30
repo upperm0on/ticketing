@@ -34,6 +34,11 @@ def load_env(path):
 load_env(BASE_DIR / ".env")
 
 
+def split_env_list(key, default=""):
+    value = os.environ.get(key, default)
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -43,11 +48,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-me")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = split_env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if render_host and render_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(render_host)
@@ -144,21 +145,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# Django 6 requires STORAGES. Define explicit defaults for media + static.
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
 
 default_cors = [
     "http://localhost:3000",
@@ -166,11 +157,12 @@ default_cors = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
-CORS_ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get("CORS_ALLOWED_ORIGINS", ",".join(default_cors)).split(",")
-    if origin.strip()
-]
+frontend_origin = os.environ.get("FRONTEND_URL", "").strip()
+if frontend_origin:
+    default_cors.append(frontend_origin.rstrip("/"))
+
+CORS_ALLOWED_ORIGINS = split_env_list("CORS_ALLOWED_ORIGINS", ",".join(default_cors))
+CORS_ALLOW_CREDENTIALS = os.environ.get("CORS_ALLOW_CREDENTIALS", "false").lower() == "true"
 
 if os.environ.get("CORS_ALLOW_ALL", "false").lower() == "true":
     CORS_ALLOW_ALL_ORIGINS = True
@@ -212,11 +204,10 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SITE_ID = 1
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
-    if origin.strip()
-]
+default_csrf = []
+if frontend_origin:
+    default_csrf.append(frontend_origin.rstrip("/"))
+CSRF_TRUSTED_ORIGINS = split_env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(default_csrf))
 if render_host:
     render_origin = f"https://{render_host}"
     if render_origin not in CSRF_TRUSTED_ORIGINS:
@@ -233,12 +224,13 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = "same-origin"
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

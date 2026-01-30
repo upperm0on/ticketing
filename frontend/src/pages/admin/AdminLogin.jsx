@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Chrome } from "lucide-react";
 import { setAdminTokens } from "../../store/adminStore.js";
 import { loginAdmin } from "../../store/adminStore.js";
-
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import { API_URL } from "../../services/api.js";
 
 export default function AdminLogin() {
   const navigate = useNavigate();

@@ -3,9 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Chrome } from "lucide-react";
 import { loginUser } from "../store/userStore.js";
 import { GoogleLogin } from "@react-oauth/google";
-import { loginWithGoogle } from "../services/api.js";
-
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import { API_URL, loginWithGoogle } from "../services/api.js";
 
 export default function UserLogin() {
     const navigate = useNavigate();
