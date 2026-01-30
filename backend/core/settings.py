@@ -31,7 +31,9 @@ def load_env(path):
         os.environ.setdefault(key, value)
 
 
-load_env(BASE_DIR / ".env")
+IS_RENDER = bool(os.environ.get("RENDER_EXTERNAL_HOSTNAME"))
+if not IS_RENDER:
+    load_env(BASE_DIR / ".env")
 
 
 def split_env_list(key, default=""):
@@ -46,7 +48,11 @@ def split_env_list(key, default=""):
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-change-me")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
+_debug_env = os.environ.get("DJANGO_DEBUG")
+if _debug_env is None:
+    DEBUG = not IS_RENDER
+else:
+    DEBUG = _debug_env.lower() == "true"
 
 ALLOWED_HOSTS = split_env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
@@ -231,6 +237,9 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+# Safety net if any third-party config mutates STORAGES.
+STORAGES.setdefault("default", {"BACKEND": "django.core.files.storage.FileSystemStorage"})
+STORAGES.setdefault("staticfiles", {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"})
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
