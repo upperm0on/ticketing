@@ -163,6 +163,9 @@ default_cors = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+fallback_frontend = "https://ticketing-ey3b.onrender.com"
+if fallback_frontend not in default_cors:
+    default_cors.append(fallback_frontend)
 frontend_origin = os.environ.get("FRONTEND_URL", "").strip()
 if frontend_origin:
     default_cors.append(frontend_origin.rstrip("/"))
@@ -211,6 +214,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SITE_ID = 1
 
 default_csrf = []
+if fallback_frontend:
+    default_csrf.append(fallback_frontend)
 if frontend_origin:
     default_csrf.append(frontend_origin.rstrip("/"))
 CSRF_TRUSTED_ORIGINS = split_env_list("DJANGO_CSRF_TRUSTED_ORIGINS", ",".join(default_csrf))
